@@ -1,7 +1,6 @@
-const { Sequelize, DataTypes } = require("sequelize");
-const sequelize = new Sequelize('sqlite::memory:');
+module.exports = (sequelize, DataTypes) => {
 
-const task = sequelize.define("Task", {
+const task = sequelize.define("tasks", {
     title: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -16,4 +15,5 @@ const task = sequelize.define("Task", {
     },
 });
 
-module.exports = task;
+return task;
+};
