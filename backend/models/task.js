@@ -13,6 +13,10 @@ const task = sequelize.define("tasks", {
         allowNull: false,
         defaultValue: false,
     },
+    dueDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
+    },
 });
 
 return task;

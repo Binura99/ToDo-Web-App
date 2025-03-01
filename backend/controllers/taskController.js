@@ -1,34 +1,43 @@
+const { Op } = require("sequelize");
 const db = require("../models");
-const Task = db.tasks; // Update this to match how your model is exported
+const Task = db.tasks;
 
-// Fetch last 5 incomplete tasks
+
 exports.getTasks = async (req, res) => {
   try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+
     const tasks = await Task.findAll({
-      where: { status: false }, // Change 'completed' to 'status' to match your model
-      order: [["createdAt", "DESC"]],
-      limit: 5
+      where: {
+        status: false,
+        dueDate: { [Op.gte]: today },
+      },
+      order: [["dueDate", "ASC"]],
     });
+
     res.json(tasks);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error fetching tasks:", err);
+    res.status(500).json({ error: "Failed to fetch tasks" });
   }
 };
 
-// Create a new task
+
 exports.createTask = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, dueDate } = req.body;
     if (!title) return res.status(400).json({ error: "Title is required" });
+    if (!dueDate) return res.status(400).json({ error: "Due date is required" });
 
-    const newTask = await Task.create({ title, description });
+    const newTask = await Task.create({ title, description, dueDate });
     res.status(201).json(newTask);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Mark task as completed
+
 exports.markComplete = async (req, res) => {
   try {
     const { id } = req.params;
@@ -36,7 +45,7 @@ exports.markComplete = async (req, res) => {
 
     if (!taskItem) return res.status(404).json({ error: "Task not found" });
 
-    taskItem.status = true; // Change 'completed' to 'status' to match your model
+    taskItem.status = true;
     await taskItem.save();
 
     res.json({ message: "Task completed successfully" });

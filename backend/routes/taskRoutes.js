@@ -3,8 +3,8 @@ const { getTasks, createTask, markComplete } = require("../controllers/taskContr
 
 const router = express.Router();
 
-router.get("/", getTasks); // Fetch last 5 incomplete tasks
-router.post("/", createTask); // Create new task
-router.patch("/:id", markComplete); // Mark task as completed
+router.get("/", getTasks);
+router.post("/", createTask);
+router.patch("/:id", markComplete);
 
 module.exports = router;
