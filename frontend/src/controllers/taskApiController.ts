@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL: string = "http://localhost:3001/api/tasks";
+const baseURL: string = import.meta.env.VITE_API_URL;
 
 interface TaskData {
   title: string;
