@@ -20,6 +20,7 @@ function App() {
   const [dueDate, setDueDate] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("form"); // For mobile view tabs: "form" or "tasks"
 
   useEffect(() => {
     fetchTasks();
@@ -61,6 +62,11 @@ function App() {
         setTaskTitle("");
         setTaskDescription("");
         setDueDate("");
+        
+        // Switch to tasks view on mobile after adding a task
+        if (window.innerWidth < 768) {
+          setActiveTab("tasks");
+        }
       }
     } catch (error) {
       showErrorToast("Failed to add task. Please try again.");
@@ -91,13 +97,38 @@ function App() {
   };
 
   return (
-    <div className="w-screen">
-      <div className="grid grid-cols-2 gap-6 h-screen p-6 bg-gray-100">
-        {/* Form section with improved overflow handling */}
-        <div className="overflow-auto flex items-start justify-center">
+    <div className="w-full min-h-screen bg-gray-100">
+      {/* Mobile Navigation Tabs */}
+      <div className="md:hidden flex w-full border-b border-gray-200 bg-white sticky top-0 z-10">
+        <button
+          onClick={() => setActiveTab("form")}
+          className={`flex-1 py-4 text-center font-medium ${
+            activeTab === "form" 
+              ? "text-blue-600 border-b-2 border-blue-600" 
+              : "text-gray-600"
+          }`}
+        >
+          Add Task
+        </button>
+        <button
+          onClick={() => setActiveTab("tasks")}
+          className={`flex-1 py-4 text-center font-medium ${
+            activeTab === "tasks" 
+              ? "text-blue-600 border-b-2 border-blue-600" 
+              : "text-gray-600"
+          }`}
+        >
+          Your Tasks {tasks.length > 0 && `(${tasks.length})`}
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="md:grid md:grid-cols-2 md:gap-6 p-4 md:p-6">
+        {/* Form section */}
+        <div className={`md:block ${activeTab === "form" ? "block" : "hidden"}`}>
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col p-6 bg-white shadow-lg rounded-lg w-full max-w-xl"
+            className="flex flex-col p-4 md:p-6 bg-white shadow-lg rounded-lg w-full max-w-xl mx-auto"
           >
             <h2 className="font-bold text-xl mb-4 text-gray-800">
               📌 Add a Task
@@ -134,7 +165,7 @@ function App() {
                 isLoading
                   ? "bg-blue-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              } text-white px-5 py-3 rounded-lg shadow-md transition-all duration-200 self-end`}
+              } text-white px-5 py-3 rounded-lg shadow-md transition-all duration-200 w-full md:w-auto md:self-end`}
               disabled={isLoading}
             >
               {isLoading ? "Adding..." : "Add Task"}
@@ -142,9 +173,9 @@ function App() {
           </form>
         </div>
 
-        {/* Tasks section with overflow handling */}
-        <div className="overflow-auto h-full">
-          <div className="p-6 border-l-4 border-gray-300 h-full">
+        {/* Tasks section */}
+        <div className={`mt-6 md:mt-0 md:block ${activeTab === "tasks" ? "block" : "hidden"}`}>
+          <div className="p-4 md:p-6 border-l-0 md:border-l-4 border-gray-300 bg-white md:bg-transparent md:h-full shadow-md md:shadow-none">
             <h2 className="font-bold text-xl mb-4 text-gray-800">
               📋 Your Tasks
             </h2>
@@ -161,14 +192,14 @@ function App() {
                   tasks.map((task, index) => (
                     <div
                       key={index}
-                      className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center border-l-4 border-blue-500 hover:shadow-lg transition-all duration-200"
+                      className="bg-white p-4 rounded-lg shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center border-l-4 border-blue-500 hover:shadow-lg transition-all duration-200 gap-4"
                     >
-                      <div>
+                      <div className="w-full sm:w-auto">
                         <h3 className="font-bold text-gray-900">{task.title}</h3>
                         <p className="text-gray-600 text-sm">
                           {task.description}
                         </p>
-                        <p className="text-gray-500 text-xs">
+                        <p className="text-gray-500 text-xs mt-1">
                           Due: {task.dueDate.substring(0, 10)}
                         </p>
                       </div>
@@ -178,7 +209,7 @@ function App() {
                           isLoading
                             ? "bg-green-400 cursor-not-allowed"
                             : "bg-green-500 hover:bg-green-600 cursor-pointer"
-                        } text-white px-4 py-2 rounded-lg transition-all duration-200 shadow-md`}
+                        } text-white px-4 py-2 rounded-lg transition-all duration-200 shadow-md w-full sm:w-auto`}
                         disabled={isLoading}
                       >
                         Done
